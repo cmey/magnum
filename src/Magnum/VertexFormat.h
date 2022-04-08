@@ -64,7 +64,9 @@ For D3D, corresponds to @m_class{m-doc-external} [DXGI_FORMAT](https://docs.micr
 for Metal, corresponds to @m_class{m-doc-external} [MTLVertexFormat](https://developer.apple.com/documentation/metal/mtlvertexformat?language=objc).
 See documentation of each value for more information about the mapping.
 @see @ref Trade::MeshData, @ref Trade::MeshAttributeData,
-    @ref Trade::MeshAttribute
+    @ref Trade::MeshAttribute,
+    @ref Trade::AbstractImporter::vertexFormatForName(),
+    @ref Trade::AbstractImporter::vertexFormatName()
 */
 enum class VertexFormat: UnsignedInt {
     /* Zero reserved for an invalid type (but not being a named value) */
@@ -1324,6 +1326,7 @@ Returns @cpp true @ce if value of @p format has its highest bit set,
 @cpp false @ce otherwise. Use @ref vertexFormatWrap() and @ref vertexFormatUnwrap()
 to wrap/unwrap an implementation-specific indentifier to/from
 @ref VertexFormat.
+@see @ref Trade::AbstractImporter::vertexFormatName()
 */
 constexpr bool isVertexFormatImplementationSpecific(VertexFormat format) {
     return UnsignedInt(format) & (1u << 31);
@@ -1352,7 +1355,8 @@ template<class T> constexpr VertexFormat vertexFormatWrap(T implementationSpecif
 Unsets the highest bit from @p format to extract the implementation-specific
 value. Expects that @p format has it set. Use @ref vertexFormatWrap() for
 the inverse operation.
-@see @ref isVertexFormatImplementationSpecific()
+@see @ref isVertexFormatImplementationSpecific(),
+    @ref Trade::AbstractImporter::vertexFormatName()
 */
 template<class T = UnsignedInt> constexpr T vertexFormatUnwrap(VertexFormat format) {
     return CORRADE_CONSTEXPR_ASSERT(UnsignedInt(format) & (1u << 31),

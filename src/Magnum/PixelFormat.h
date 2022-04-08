@@ -62,7 +62,8 @@ and import is provided by the @ref Trade::DdsImporter "DdsImporter" plugin; for
 Metal, corresponds to @m_class{m-doc-external} [MTLPixelFormat](https://developer.apple.com/documentation/metal/mtlpixelformat?language=objc).
 See documentation of each value for more information about the mapping.
 @see @ref pixelSize(), @ref CompressedPixelFormat, @ref Image, @ref ImageView,
-    @ref VertexFormat
+    @ref VertexFormat, @ref Trade::AbstractImporter::pixelFormatForName(),
+    @ref Trade::AbstractImporter::pixelFormatName()
 */
 enum class PixelFormat: UnsignedInt {
     /* Zero reserved for an invalid format (but not being a named value) */
@@ -784,7 +785,8 @@ MAGNUM_EXPORT Debug& operator<<(Debug& debug, PixelFormat value);
 Returns @cpp true @ce if value of @p format has its highest bit set, @cpp false @ce
 otherwise. Use @ref pixelFormatWrap() and @ref pixelFormatUnwrap() to
 wrap/unwrap an implementation-specific indentifier to/from @ref PixelFormat.
-@see @ref isCompressedPixelFormatImplementationSpecific()
+@see @ref isCompressedPixelFormatImplementationSpecific(),
+    @ref Trade::AbstractImporter::pixelFormatName()
 */
 constexpr bool isPixelFormatImplementationSpecific(PixelFormat format) {
     return UnsignedInt(format) & (1u << 31);
@@ -812,7 +814,9 @@ template<class T> constexpr PixelFormat pixelFormatWrap(T implementationSpecific
 Unsets the highest bit from @p format to extract the implementation-specific
 value. Expects that @p format has it set. Use @ref pixelFormatWrap() for the
 inverse operation.
-@see @ref isPixelFormatImplementationSpecific(), @ref compressedPixelFormatUnwrap()
+@see @ref isPixelFormatImplementationSpecific(),
+    @ref compressedPixelFormatUnwrap(),
+    @ref Trade::AbstractImporter::pixelFormatName()
 */
 template<class T = UnsignedInt> constexpr T pixelFormatUnwrap(PixelFormat format) {
     return CORRADE_CONSTEXPR_ASSERT(UnsignedInt(format) & (1u << 31),
@@ -845,7 +849,9 @@ and import is provided by the @ref Trade::DdsImporter "DdsImporter" plugin; for
 Metal, corresponds to @m_class{m-doc-external} [MTLPixelFormat](https://developer.apple.com/documentation/metal/mtlpixelformat?language=objc).
 See documentation of each value for more information about the mapping.
 @see @ref compressedBlockSize(), @ref compressedBlockDataSize(),
-    @ref PixelFormat, @ref CompressedImage, @ref CompressedImageView
+    @ref PixelFormat, @ref CompressedImage, @ref CompressedImageView,
+    @ref Trade::AbstractImporter::compressedPixelFormatForName(),
+    @ref Trade::AbstractImporter::compressedPixelFormatName()
 */
 enum class CompressedPixelFormat: UnsignedInt {
     /* Zero reserved for an invalid format (but not being a named value) */
@@ -2352,7 +2358,8 @@ MAGNUM_EXPORT Debug& operator<<(Debug& debug, CompressedPixelFormat value);
 Returns @cpp true @ce if value of @p format has its highest bit set, @cpp false @ce
 otherwise. Use @ref compressedPixelFormatWrap() and @ref compressedPixelFormatUnwrap()
 to wrap/unwrap an implementation-specific indentifier to/from @ref CompressedPixelFormat.
-@see @ref isPixelFormatImplementationSpecific()
+@see @ref isPixelFormatImplementationSpecific(),
+    @ref Trade::AbstractImporter::compressedPixelFormatName()
 */
 constexpr bool isCompressedPixelFormatImplementationSpecific(CompressedPixelFormat format) {
     return UnsignedInt(format) & (1u << 31);
@@ -2381,7 +2388,9 @@ template<class T> constexpr CompressedPixelFormat compressedPixelFormatWrap(T im
 Unsets the highest bit from @p format to extract the implementation-specific
 value. Expects that @p format has it set. Use @ref compressedPixelFormatWrap() for the
 inverse operation.
-@see @ref isCompressedPixelFormatImplementationSpecific(), @ref pixelFormatUnwrap()
+@see @ref isCompressedPixelFormatImplementationSpecific(),
+    @ref pixelFormatUnwrap(),
+    @ref Trade::AbstractImporter::compressedPixelFormatName()
 */
 template<class T = UnsignedInt> constexpr T compressedPixelFormatUnwrap(CompressedPixelFormat format) {
     return CORRADE_CONSTEXPR_ASSERT(UnsignedInt(format) & (1u << 31),

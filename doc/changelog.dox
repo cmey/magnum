@@ -283,6 +283,20 @@ See also:
     @relativeref{Trade::AbstractImporter,clearFlags()} convenience helpers that
     are encouraged over @relativeref{Trade::AbstractImporter,setFlags()} as it
     avoid accidentally clearing default flags potentially added in the future.
+-   New @ref Trade::AbstractImporter::meshPrimitiveName(),
+    @relativeref{Trade::AbstractImporter,meshPrimitiveForName()},
+    @relativeref{Trade::AbstractImporter,meshIndexTypeName()},
+    @relativeref{Trade::AbstractImporter,meshIndexTypeForName()},
+    @relativeref{Trade::AbstractImporter,vertexFormatName()},
+    @relativeref{Trade::AbstractImporter,vertexFormatForName()},
+    @relativeref{Trade::AbstractImporter,pixelFormatName()},
+    @relativeref{Trade::AbstractImporter,pixelFormatForName()},
+    @relativeref{Trade::AbstractImporter,compressedPixelFormatName()} and
+    @relativeref{Trade::AbstractImporter,compressedPixelFormatForName()}
+    queries for human-readable indentifiers of implementation-specific formats
+    and types, similar to the already-present
+    @relativeref{Trade::AbstractImporter,meshAttributeName()} for custom mesh
+    attributes
 -   New @ref Trade::AbstractImporter::openMemory() function for passing
     non-temporary memory to the importer, allowing the implementations to avoid
     allocating an internal copy; for benchmarking and testing purposes it's

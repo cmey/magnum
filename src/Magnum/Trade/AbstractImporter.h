@@ -298,15 +298,22 @@ name doesn't exist.
     @ref image3DForName(), imported with
     @ref image1D(Containers::StringView, UnsignedInt) /
     @ref image2D(Containers::StringView, UnsignedInt) /
-    @ref image3D(Containers::StringView, UnsignedInt)
+    @ref image3D(Containers::StringView, UnsignedInt). Images themselves can
+    have implementation-specific pixel formats, for which the ame mapping can
+    be retrieved using @ref pixelFormatName() / @ref compressedPixelFormatName()
+    and @ref pixelFormatForName() / @ref compressedPixelFormatForName().
 -   Light names using @ref lightName() & @ref lightForName(), imported with
     @ref light(Containers::StringView)
 -   Material names using @ref materialName() & @ref materialForName(), imported
     with @ref material(Containers::StringView)
 -   Mesh names using @ref meshName() & @ref meshForName(), imported with
     @ref mesh(Containers::StringView, UnsignedInt). Meshes themselves can have
-    custom attributes, for which the name mapping can be retrieved using
-    @ref meshAttributeName() and @ref meshAttributeForName().
+    custom attributes, implementation-specific primitives, index types and
+    vertex formats, for which the name mapping can be retrieved using
+    @ref meshAttributeName() / @ref meshPrimitiveName() /
+    @ref meshIndexTypeName() / @ref vertexFormatName() and
+    @ref meshAttributeForName() / @ref meshPrimitiveForName() /
+    @ref meshIndexTypeForName() / @ref vertexFormatForName().
 -   Scene and object names using @ref sceneName() / @ref objectName() &
     @ref sceneForName() / @ref objectForName(), imported with
     @ref scene(Containers::StringView). Scenes themselves can have custom
@@ -1281,7 +1288,8 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * @see @ref mesh(Containers::StringView, UnsignedInt),
          *      @ref MeshPrimitive::Instances, @ref MeshPrimitive::Faces,
          *      @ref MeshPrimitive::Edges, @ref meshName(),
-         *      @ref meshAttributeName()
+         *      @ref meshAttributeName(), @ref meshPrimitiveName(),
+         *      @ref meshIndexTypeName(), @ref vertexFormatName()
          */
         Containers::Optional<MeshData> mesh(UnsignedInt id, UnsignedInt level = 0);
 
@@ -1325,6 +1333,102 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * @see @ref meshAttributeForName(), @ref isMeshAttributeCustom()
          */
         Containers::String meshAttributeName(MeshAttribute name);
+
+        /**
+         * @brief Mesh primitive for given name
+         * @m_since_latest
+         *
+         * If the @p name is not recognized, returns a zero (invalid)
+         * @relativeref{Magnum,MeshPrimitive}, otherwise returns an
+         * implementation-specific primitive. Note that the value returned by
+         * this function may depend on whether a file is opened or not and also
+         * be different for different files --- see documentation of a
+         * particular importer for more information.
+         * @see @ref meshPrimitiveName(),
+         *      @ref isMeshPrimitiveImplementationSpecific()
+         */
+        MeshPrimitive meshPrimitiveForName(Containers::StringView name);
+
+        /**
+         * @brief String name for given implementation-specific mesh primitive
+         * @m_since_latest
+         *
+         * Given an implementation-specific @p primitive returned by
+         * @ref mesh() in a @ref MeshData, returns a string identifier. If a
+         * string representation is not available or @p primitive is not
+         * recognized, returns an empty string. Expects that @p primitive is
+         * implementation-specific. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref meshPrimitiveForName(),
+         *      @ref isMeshPrimitiveImplementationSpecific()
+         */
+        Containers::String meshPrimitiveName(MeshPrimitive primitive);
+
+        /**
+         * @brief Mesh index type for given name
+         * @m_since_latest
+         *
+         * If the @p name is not recognized, returns a zero (invalid)
+         * @ref MeshIndexType, otherwise returns an implementation-specific
+         * type. Note that the value returned by this function may depend
+         * on whether a file is opened or not and also be different for
+         * different files --- see documentation of a particular importer for
+         * more information.
+         * @see @ref meshIndexTypeName(),
+         *      @ref isMeshIndexTypeImplementationSpecific()
+         */
+        MeshIndexType meshIndexTypeForName(Containers::StringView name);
+
+        /**
+         * @brief String name for given implementation-specific mesh index type
+         * @m_since_latest
+         *
+         * Given an implementation-specific @p type returned by @ref mesh() in
+         * a @ref MeshData, returns a string identifier. If a string
+         * representation is not available or @p type is not recognized,
+         * returns an empty string. Expects that @p type is
+         * implementation-specific. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref meshIndexTypeForName(),
+         *      @ref isMeshIndexTypeImplementationSpecific()
+         */
+        Containers::String meshIndexTypeName(MeshIndexType type);
+
+        /**
+         * @brief Vertex format for given name
+         * @m_since_latest
+         *
+         * If the @p name is not recognized, returns a zero (invalid)
+         * @ref VertexFormat, otherwise returns an implementation-specific
+         * format. Note that the value returned by this function may depend
+         * on whether a file is opened or not and also be different for
+         * different files --- see documentation of a particular importer for
+         * more information.
+         * @see @ref vertexFormatName(),
+         *      @ref isVertexFormatImplementationSpecific()
+         */
+        VertexFormat vertexFormatForName(Containers::StringView name);
+
+        /**
+         * @brief String name for given implementation-specific vertex format
+         * @m_since_latest
+         *
+         * Given an implementation-specific @p format returned by @ref mesh()
+         * in a @ref MeshData, returns a string identifier. If a string
+         * representation is not available or @p format is not recognized,
+         * returns an empty string. Expects that @p format is
+         * implementation-specific. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref vertexFormatForName(),
+         *      @ref isVertexFormatImplementationSpecific()
+         */
+        Containers::String vertexFormatName(VertexFormat format);
 
         #ifdef MAGNUM_BUILD_DEPRECATED
         /**
@@ -1562,7 +1666,8 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * On failure prints a message to @relativeref{Magnum,Error} and
          * returns @ref Containers::NullOpt. Expects that a file is opened.
          * @see @ref image1D(Containers::StringView, UnsignedInt),
-         *      @ref image1DName()
+         *      @ref image1DName(), @ref pixelFormatName(),
+         *      @ref compressedPixelFormatName()
          */
         Containers::Optional<ImageData1D> image1D(UnsignedInt id, UnsignedInt level = 0);
 
@@ -1625,7 +1730,8 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * On failure prints a message to @relativeref{Magnum,Error} and
          * returns @ref Containers::NullOpt. Expects that a file is opened.
          * @see @ref image2D(Containers::StringView, UnsignedInt),
-         *      @ref image2DName()
+         *      @ref image2DName(), @ref pixelFormatName(),
+         *      @ref compressedPixelFormatName()
          */
         Containers::Optional<ImageData2D> image2D(UnsignedInt id, UnsignedInt level = 0);
 
@@ -1688,7 +1794,8 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * On failure prints a message to @relativeref{Magnum,Error} and
          * returns @ref Containers::NullOpt. Expects that a file is opened.
          * @see @ref image3D(Containers::StringView, UnsignedInt),
-         *      @ref image3DName()
+         *      @ref image3DName(), @ref pixelFormatName(),
+         *      @ref compressedPixelFormatName()
          */
         Containers::Optional<ImageData3D> image3D(UnsignedInt id, UnsignedInt level = 0);
 
@@ -1704,6 +1811,72 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          * file is opened.
          */
         Containers::Optional<ImageData3D> image3D(Containers::StringView name, UnsignedInt level = 0);
+
+        /**
+         * @brief Pixel format for given name
+         * @m_since_latest
+         *
+         * If the @p name is not recognized, returns a zero (invalid)
+         * @ref PixelFormat, otherwise returns an implementation-specific
+         * format. Note that the value returned by this function may depend
+         * on whether a file is opened or not and also be different for
+         * different files --- see documentation of a particular importer for
+         * more information.
+         * @see @ref pixelFormatName(),
+         *      @ref isPixelFormatImplementationSpecific()
+         */
+        PixelFormat pixelFormatForName(Containers::StringView name);
+
+        /**
+         * @brief Compressed pixel format for given name
+         * @m_since_latest
+         *
+         * If the @p name is not recognized, returns a zero (invalid)
+         * @ref CompressedPixelFormat, otherwise returns an
+         * implementation-specific format. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref pixelFormatForName(),
+         *      @ref isCompressedPixelFormatImplementationSpecific()
+         */
+        Containers::String pixelFormatName(PixelFormat format);
+
+        /**
+         * @brief String name for given implementation-specific pixel format
+         * @m_since_latest
+         *
+         * Given an implementation-specific @p format returned by
+         * @ref image1D() / @ref image2D() / @ref image3D() in an
+         * @ref ImageData, returns a string identifier. If a string
+         * representation is not available or @p format is not recognized,
+         * returns an empty string. Expects that @p format is
+         * implementation-specific. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref compressedPixelFormatName(),
+         *      @ref isPixelFormatImplementationSpecific()
+         */
+        CompressedPixelFormat compressedPixelFormatForName(Containers::StringView name);
+
+        /**
+         * @brief String name for given implementation-specific compressed pixel format
+         * @m_since_latest
+         *
+         * Given an implementation-specific @p format returned by
+         * @ref image1D() / @ref image2D() / @ref image3D() in an
+         * @ref ImageData, returns a string identifier. If a string
+         * representation is not available or @p format is not recognized,
+         * returns an empty string. Expects that @p format is
+         * implementation-specific. Note that the value returned by this
+         * function may depend on whether a file is opened or not and also be
+         * different for different files --- see documentation of a particular
+         * importer for more information.
+         * @see @ref compressedPixelFormatForName(),
+         *      @ref isCompressedPixelFormatImplementationSpecific()
+         */
+        Containers::String compressedPixelFormatName(CompressedPixelFormat format);
 
         /* Since 1.8.17, the original short-hand group closing doesn't work
            anymore. FFS. */
@@ -2244,6 +2417,57 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
          */
         virtual Containers::String doMeshAttributeName(UnsignedShort name);
 
+        /**
+         * @brief Implementation for @ref meshPrimitiveForName()
+         * @m_since_latest
+         *
+         * Default implementation returns an invalid (zero) value.
+         */
+        virtual MeshPrimitive doMeshPrimitiveForName(Containers::StringView name);
+
+        /**
+         * @brief Implementation for @ref meshPrimitiveName()
+         * @m_since_latest
+         *
+         * Receives the custom ID extracted via @ref meshPrimitiveUnwrap().
+         * Default implementation returns an empty string.
+         */
+        virtual Containers::String doMeshPrimitiveName(UnsignedInt primitive);
+
+        /**
+         * @brief Implementation for @ref meshIndexTypeForName()
+         * @m_since_latest
+         *
+         * Default implementation returns an invalid (zero) value.
+         */
+        virtual MeshIndexType doMeshIndexTypeForName(Containers::StringView name);
+
+        /**
+         * @brief Implementation for @ref meshIndexTypeName()
+         * @m_since_latest
+         *
+         * Receives the custom ID extracted via @ref meshIndexTypeUnwrap().
+         * Default implementation returns an empty string.
+         */
+        virtual Containers::String doMeshIndexTypeName(UnsignedInt type);
+
+        /**
+         * @brief Implementation for @ref vertexFormatForName()
+         * @m_since_latest
+         *
+         * Default implementation returns an invalid (zero) value.
+         */
+        virtual VertexFormat doVertexFormatForName(Containers::StringView name);
+
+        /**
+         * @brief Implementation for @ref vertexFormatName()
+         * @m_since_latest
+         *
+         * Receives the custom ID extracted via @ref vertexFormatUnwrap().
+         * Default implementation returns an empty string.
+         */
+        virtual Containers::String doVertexFormatName(UnsignedInt format);
+
         #ifdef MAGNUM_BUILD_DEPRECATED
         /**
          * @brief Implementation for @ref mesh2DCount()
@@ -2526,6 +2750,41 @@ class MAGNUM_TRADE_EXPORT AbstractImporter: public PluginManager::AbstractManagi
 
         /** @brief Implementation for @ref image3D() */
         virtual Containers::Optional<ImageData3D> doImage3D(UnsignedInt id, UnsignedInt level);
+
+        /**
+         * @brief Implementation for @ref pixelFormatForName()
+         * @m_since_latest
+         *
+         * Default implementation returns an invalid (zero) value.
+         */
+        virtual PixelFormat doPixelFormatForName(Containers::StringView name);
+
+        /**
+         * @brief Implementation for @ref pixelFormatName()
+         * @m_since_latest
+         *
+         * Receives the custom ID extracted via @ref pixelFormatUnwrap().
+         * Default implementation returns an empty string.
+         */
+        virtual Containers::String doPixelFormatName(UnsignedInt format);
+
+        /**
+         * @brief Implementation for @ref compressedPixelFormatForName()
+         * @m_since_latest
+         *
+         * Default implementation returns an invalid (zero) value.
+         */
+        virtual CompressedPixelFormat doCompressedPixelFormatForName(Containers::StringView name);
+
+        /**
+         * @brief Implementation for @ref compressedPixelFormatName()
+         * @m_since_latest
+         *
+         * Receives the custom ID extracted via
+         * @ref compressedPixelFormatUnwrap(). Default implementation returns
+         * an empty string.
+         */
+        virtual Containers::String doCompressedPixelFormatName(UnsignedInt format);
 
         /** @brief Implementation for @ref importerState() */
         virtual const void* doImporterState() const;

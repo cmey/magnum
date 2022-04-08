@@ -58,7 +58,9 @@ For D3D, corresponds to @m_class{m-doc-external} [D3D_PRIMITIVE_TOPOLOGY](https:
 for Metal, corresponds to @m_class{m-doc-external} [MTLPrimitiveType](https://developer.apple.com/documentation/metal/mtlprimitivetype?language=objc).
 See documentation of each value for more information about the mapping.
 
-@see @ref MeshTools::primitiveCount(MeshPrimitive, UnsignedInt)
+@see @ref MeshTools::primitiveCount(MeshPrimitive, UnsignedInt),
+    @ref Trade::AbstractImporter::meshPrimitiveForName(),
+    @ref Trade::AbstractImporter::meshPrimitiveName()
 */
 enum class MeshPrimitive: UnsignedInt {
     /* Zero reserved for an invalid type (but not being a named value) */
@@ -204,9 +206,10 @@ MAGNUM_EXPORT Debug& operator<<(Debug& debug, MeshPrimitive value);
 @m_since{2020,06}
 
 Returns @cpp true @ce if value of @p primitive has its highest bit set,
-@cpp false @ce otherwise. Use @ref meshPrimitiveWrap() and @ref meshPrimitiveUnwrap()
-to wrap/unwrap an implementation-specific indentifier to/from
-@ref MeshPrimitive.
+@cpp false @ce otherwise. Use @ref meshPrimitiveWrap() and
+@ref meshPrimitiveUnwrap() to wrap/unwrap an implementation-specific
+indentifier to/from @ref MeshPrimitive.
+@see @ref Trade::AbstractImporter::meshPrimitiveName()
 */
 constexpr bool isMeshPrimitiveImplementationSpecific(MeshPrimitive primitive) {
     return UnsignedInt(primitive) & (1u << 31);
@@ -235,7 +238,8 @@ template<class T> constexpr MeshPrimitive meshPrimitiveWrap(T implementationSpec
 Unsets the highest bit from @p primitive to extract the implementation-specific
 value. Expects that @p primitive has it set. Use @ref meshPrimitiveWrap() for
 the inverse operation.
-@see @ref isMeshPrimitiveImplementationSpecific()
+@see @ref isMeshPrimitiveImplementationSpecific(),
+    @ref Trade::AbstractImporter::meshPrimitiveName()
 */
 template<class T = UnsignedInt> constexpr T meshPrimitiveUnwrap(MeshPrimitive primitive) {
     return CORRADE_CONSTEXPR_ASSERT(UnsignedInt(primitive) & (1u << 31),
@@ -263,7 +267,9 @@ information about the mapping.
 For D3D, corresponds to @m_class{m-doc-external} [DXGI_FORMAT](https://docs.microsoft.com/en-us/windows/win32/api/dxgiformat/ne-dxgiformat-dxgi_format);
 for Metal, corresponds to @m_class{m-doc-external} [MTLIndexType](https://developer.apple.com/documentation/metal/mtlindextype?language=objc).
 See documentation of each value for more information about the mapping.
-@see @ref meshIndexTypeSize()
+@see @ref meshIndexTypeSize(),
+    @ref Trade::AbstractImporter::meshIndexTypeForName(),
+    @ref Trade::AbstractImporter::meshIndexTypeName()
 */
 enum class MeshIndexType: UnsignedInt {
     /* Zero reserved for an invalid type (but not being a named value) */
@@ -313,6 +319,7 @@ Returns @cpp true @ce if value of @p type has its highest bit set,
 @cpp false @ce otherwise. Use @ref meshIndexTypeWrap() and
 @ref meshIndexTypeUnwrap() to wrap/unwrap an implementation-specific
 indentifier to/from @ref MeshIndexType.
+@see @ref Trade::AbstractImporter::meshIndexTypeName()
 */
 constexpr bool isMeshIndexTypeImplementationSpecific(MeshIndexType type) {
     return UnsignedInt(type) & (1u << 31);
@@ -341,7 +348,8 @@ template<class T> constexpr MeshIndexType meshIndexTypeWrap(T implementationSpec
 Unsets the highest bit from @p type to extract the implementation-specific
 value. Expects that @p type has it set. Use @ref meshIndexTypeWrap() for
 the inverse operation.
-@see @ref isMeshIndexTypeImplementationSpecific()
+@see @ref isMeshIndexTypeImplementationSpecific(),
+    @ref Trade::AbstractImporter::meshIndexTypeName()
 */
 template<class T = UnsignedInt> constexpr T meshIndexTypeUnwrap(MeshIndexType type) {
     return CORRADE_CONSTEXPR_ASSERT(UnsignedInt(type) & (1u << 31),

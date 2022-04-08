@@ -270,6 +270,21 @@ struct AbstractImporterTest: TestSuite::Tester {
     void meshAttributeNameNotCustom();
     void meshAttributeNameCustomDeleter();
 
+    void meshPrimitiveName();
+    void meshPrimitiveNameNotImplemented();
+    void meshPrimitiveNameNotImplementationSpecific();
+    void meshPrimitiveNameCustomDeleter();
+
+    void meshIndexTypeName();
+    void meshIndexTypeNameNotImplemented();
+    void meshIndexTypeNameNotImplementationSpecific();
+    void meshIndexTypeNameCustomDeleter();
+
+    void vertexFormatName();
+    void vertexFormatNameNotImplemented();
+    void vertexFormatNameNotImplementationSpecific();
+    void vertexFormatNameCustomDeleter();
+
     #ifdef MAGNUM_BUILD_DEPRECATED
     void mesh2D();
     void mesh2DCountNotImplemented();
@@ -367,6 +382,16 @@ struct AbstractImporterTest: TestSuite::Tester {
     void image3DNonOwningDeleter();
     void image3DGrowableDeleter();
     void image3DCustomDeleter();
+
+    void pixelFormatName();
+    void pixelFormatNameNotImplemented();
+    void pixelFormatNameNotImplementationSpecific();
+    void pixelFormatNameCustomDeleter();
+
+    void compressedPixelFormatName();
+    void compressedPixelFormatNameNotImplemented();
+    void compressedPixelFormatNameNotImplementationSpecific();
+    void compressedPixelFormatNameCustomDeleter();
 
     void importerState();
     void importerStateNotImplemented();
@@ -596,6 +621,21 @@ AbstractImporterTest::AbstractImporterTest() {
               &AbstractImporterTest::meshAttributeNameNotCustom,
               &AbstractImporterTest::meshAttributeNameCustomDeleter,
 
+              &AbstractImporterTest::meshPrimitiveName,
+              &AbstractImporterTest::meshPrimitiveNameNotImplemented,
+              &AbstractImporterTest::meshPrimitiveNameNotImplementationSpecific,
+              &AbstractImporterTest::meshPrimitiveNameCustomDeleter,
+
+              &AbstractImporterTest::meshIndexTypeName,
+              &AbstractImporterTest::meshIndexTypeNameNotImplemented,
+              &AbstractImporterTest::meshIndexTypeNameNotImplementationSpecific,
+              &AbstractImporterTest::meshIndexTypeNameCustomDeleter,
+
+              &AbstractImporterTest::vertexFormatName,
+              &AbstractImporterTest::vertexFormatNameNotImplemented,
+              &AbstractImporterTest::vertexFormatNameNotImplementationSpecific,
+              &AbstractImporterTest::vertexFormatNameCustomDeleter,
+
               #ifdef MAGNUM_BUILD_DEPRECATED
               &AbstractImporterTest::mesh2D,
               &AbstractImporterTest::mesh2DCountNotImplemented,
@@ -693,6 +733,16 @@ AbstractImporterTest::AbstractImporterTest() {
               &AbstractImporterTest::image3DNonOwningDeleter,
               &AbstractImporterTest::image3DGrowableDeleter,
               &AbstractImporterTest::image3DCustomDeleter,
+
+              &AbstractImporterTest::pixelFormatName,
+              &AbstractImporterTest::pixelFormatNameNotImplemented,
+              &AbstractImporterTest::pixelFormatNameNotImplementationSpecific,
+              &AbstractImporterTest::pixelFormatNameCustomDeleter,
+
+              &AbstractImporterTest::compressedPixelFormatName,
+              &AbstractImporterTest::compressedPixelFormatNameNotImplemented,
+              &AbstractImporterTest::compressedPixelFormatNameNotImplementationSpecific,
+              &AbstractImporterTest::compressedPixelFormatNameCustomDeleter,
 
               &AbstractImporterTest::importerState,
               &AbstractImporterTest::importerStateNotImplemented,
@@ -6057,6 +6107,237 @@ void AbstractImporterTest::meshAttributeNameCustomDeleter() {
     CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::meshAttributeName(): implementation is not allowed to use a custom String deleter\n");
 }
 
+void AbstractImporterTest::meshPrimitiveName() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        MeshPrimitive doMeshPrimitiveForName(Containers::StringView name) override {
+            if(name == "QUADS") return meshPrimitiveWrap(37);
+            return MeshPrimitive{};
+        }
+
+        Containers::String doMeshPrimitiveName(UnsignedInt id) override {
+            if(id == 37) return "QUADS";
+            return "";
+        }
+    } importer;
+
+    CORRADE_COMPARE(importer.meshPrimitiveForName("QUADS"), meshPrimitiveWrap(37));
+    CORRADE_COMPARE(importer.meshPrimitiveName(meshPrimitiveWrap(37)), "QUADS");
+}
+
+void AbstractImporterTest::meshPrimitiveNameNotImplemented() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+    } importer;
+
+    CORRADE_COMPARE(importer.meshPrimitiveForName(""), MeshPrimitive{});
+    CORRADE_COMPARE(importer.meshPrimitiveName(meshPrimitiveWrap(37)), "");
+}
+
+void AbstractImporterTest::meshPrimitiveNameNotImplementationSpecific() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        MeshPrimitive doMeshPrimitiveForName(Containers::StringView) override {
+            return MeshPrimitive::Triangles;
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.meshPrimitiveForName("QUADS");
+    importer.meshPrimitiveName(MeshPrimitive::Triangles);
+    CORRADE_COMPARE(out.str(),
+        "Trade::AbstractImporter::meshPrimitiveForName(): implementation-returned MeshPrimitive::Triangles is neither implementation-specific nor invalid\n"
+        "Trade::AbstractImporter::meshPrimitiveName(): MeshPrimitive::Triangles is not implementation-specific\n");
+}
+
+void AbstractImporterTest::meshPrimitiveNameCustomDeleter() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return true; }
+        void doClose() override {}
+
+        Containers::String doMeshPrimitiveName(UnsignedInt) override {
+            return Containers::String{"a", 1, [](char*, std::size_t) {}};
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.meshPrimitiveName(meshPrimitiveWrap(0));
+    CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::meshPrimitiveName(): implementation is not allowed to use a custom String deleter\n");
+}
+
+void AbstractImporterTest::meshIndexTypeName() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        MeshIndexType doMeshIndexTypeForName(Containers::StringView name) override {
+            if(name == "NGNONS_8_32") return meshIndexTypeWrap(37);
+            return MeshIndexType{};
+        }
+
+        Containers::String doMeshIndexTypeName(UnsignedInt id) override {
+            if(id == 37) return "NGNONS_8_32";
+            return "";
+        }
+    } importer;
+
+    CORRADE_COMPARE(importer.meshIndexTypeForName("NGNONS_8_32"), meshIndexTypeWrap(37));
+    CORRADE_COMPARE(importer.meshIndexTypeName(meshIndexTypeWrap(37)), "NGNONS_8_32");
+}
+
+void AbstractImporterTest::meshIndexTypeNameNotImplemented() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+    } importer;
+
+    CORRADE_COMPARE(importer.meshIndexTypeForName(""), MeshIndexType{});
+    CORRADE_COMPARE(importer.meshIndexTypeName(meshIndexTypeWrap(37)), "");
+}
+
+void AbstractImporterTest::meshIndexTypeNameNotImplementationSpecific() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        MeshIndexType doMeshIndexTypeForName(Containers::StringView) override {
+            return MeshIndexType::UnsignedInt;
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.meshIndexTypeForName("NGNONS_8_32");
+    importer.meshIndexTypeName(MeshIndexType::UnsignedInt);
+    CORRADE_COMPARE(out.str(),
+        "Trade::AbstractImporter::meshIndexTypeForName(): implementation-returned MeshIndexType::UnsignedInt is neither implementation-specific nor invalid\n"
+        "Trade::AbstractImporter::meshIndexTypeName(): MeshIndexType::UnsignedInt is not implementation-specific\n");
+}
+
+void AbstractImporterTest::meshIndexTypeNameCustomDeleter() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return true; }
+        void doClose() override {}
+
+        Containers::String doMeshIndexTypeName(UnsignedInt) override {
+            return Containers::String{"a", 1, [](char*, std::size_t) {}};
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.meshIndexTypeName(meshIndexTypeWrap(0));
+    CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::meshIndexTypeName(): implementation is not allowed to use a custom String deleter\n");
+}
+
+void AbstractImporterTest::vertexFormatName() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        VertexFormat doVertexFormatForName(Containers::StringView name) override {
+            if(name == "R11F_G11F_B10F") return vertexFormatWrap(37);
+            return VertexFormat{};
+        }
+
+        Containers::String doVertexFormatName(UnsignedInt id) override {
+            if(id == 37) return "R11F_G11F_B10F";
+            return "";
+        }
+    } importer;
+
+    CORRADE_COMPARE(importer.vertexFormatForName("R11F_G11F_B10F"), vertexFormatWrap(37));
+    CORRADE_COMPARE(importer.vertexFormatName(vertexFormatWrap(37)), "R11F_G11F_B10F");
+}
+
+void AbstractImporterTest::vertexFormatNameNotImplemented() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+    } importer;
+
+    CORRADE_COMPARE(importer.vertexFormatForName(""), VertexFormat{});
+    CORRADE_COMPARE(importer.vertexFormatName(vertexFormatWrap(37)), "");
+}
+
+void AbstractImporterTest::vertexFormatNameNotImplementationSpecific() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        VertexFormat doVertexFormatForName(Containers::StringView) override {
+            return VertexFormat::Vector3;
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.vertexFormatForName("R11F_G11F_B10F");
+    importer.vertexFormatName(VertexFormat::Vector3);
+    CORRADE_COMPARE(out.str(),
+        "Trade::AbstractImporter::vertexFormatForName(): implementation-returned VertexFormat::Vector3 is neither implementation-specific nor invalid\n"
+        "Trade::AbstractImporter::vertexFormatName(): VertexFormat::Vector3 is not implementation-specific\n");
+}
+
+void AbstractImporterTest::vertexFormatNameCustomDeleter() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return true; }
+        void doClose() override {}
+
+        Containers::String doVertexFormatName(UnsignedInt) override {
+            return Containers::String{"a", 1, [](char*, std::size_t) {}};
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.vertexFormatName(vertexFormatWrap(0));
+    CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::vertexFormatName(): implementation is not allowed to use a custom String deleter\n");
+}
+
 #ifdef MAGNUM_BUILD_DEPRECATED
 void AbstractImporterTest::mesh2D() {
     struct: AbstractImporter {
@@ -7924,6 +8205,160 @@ void AbstractImporterTest::image3DCustomDeleter() {
     CORRADE_COMPARE(out.str(),
         "Trade::AbstractImporter::image3D(): implementation is not allowed to use a custom Array deleter\n"
         "Trade::AbstractImporter::image3D(): implementation is not allowed to use a custom Array deleter\n");
+}
+
+void AbstractImporterTest::pixelFormatName() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        PixelFormat doPixelFormatForName(Containers::StringView name) override {
+            if(name == "R11F_G11F_B10F") return pixelFormatWrap(37);
+            return PixelFormat{};
+        }
+
+        Containers::String doPixelFormatName(UnsignedInt id) override {
+            if(id == 37) return "R11F_G11F_B10F";
+            return "";
+        }
+    } importer;
+
+    CORRADE_COMPARE(importer.pixelFormatForName("R11F_G11F_B10F"), pixelFormatWrap(37));
+    CORRADE_COMPARE(importer.pixelFormatName(pixelFormatWrap(37)), "R11F_G11F_B10F");
+}
+
+void AbstractImporterTest::pixelFormatNameNotImplemented() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+    } importer;
+
+    CORRADE_COMPARE(importer.pixelFormatForName(""), PixelFormat{});
+    CORRADE_COMPARE(importer.pixelFormatName(pixelFormatWrap(37)), "");
+}
+
+void AbstractImporterTest::pixelFormatNameNotImplementationSpecific() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        PixelFormat doPixelFormatForName(Containers::StringView) override {
+            return PixelFormat::RGB16F;
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.pixelFormatForName("R11F_G11F_B10F");
+    importer.pixelFormatName(PixelFormat::RGB16F);
+    CORRADE_COMPARE(out.str(),
+        "Trade::AbstractImporter::pixelFormatForName(): implementation-returned PixelFormat::RGB16F is neither implementation-specific nor invalid\n"
+        "Trade::AbstractImporter::pixelFormatName(): PixelFormat::RGB16F is not implementation-specific\n");
+}
+
+void AbstractImporterTest::pixelFormatNameCustomDeleter() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return true; }
+        void doClose() override {}
+
+        Containers::String doPixelFormatName(UnsignedInt) override {
+            return Containers::String{"a", 1, [](char*, std::size_t) {}};
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.pixelFormatName(pixelFormatWrap(0));
+    CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::pixelFormatName(): implementation is not allowed to use a custom String deleter\n");
+}
+
+void AbstractImporterTest::compressedPixelFormatName() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        CompressedPixelFormat doCompressedPixelFormatForName(Containers::StringView name) override {
+            if(name == "ATC_RGBA") return compressedPixelFormatWrap(37);
+            return CompressedPixelFormat{};
+        }
+
+        Containers::String doCompressedPixelFormatName(UnsignedInt id) override {
+            if(id == 37) return "ATC_RGBA";
+            return "";
+        }
+    } importer;
+
+    CORRADE_COMPARE(importer.compressedPixelFormatForName("ATC_RGBA"), compressedPixelFormatWrap(37));
+    CORRADE_COMPARE(importer.compressedPixelFormatName(compressedPixelFormatWrap(37)), "ATC_RGBA");
+}
+
+void AbstractImporterTest::compressedPixelFormatNameNotImplemented() {
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+    } importer;
+
+    CORRADE_COMPARE(importer.compressedPixelFormatForName(""), CompressedPixelFormat{});
+    CORRADE_COMPARE(importer.compressedPixelFormatName(compressedPixelFormatWrap(37)), "");
+}
+
+void AbstractImporterTest::compressedPixelFormatNameNotImplementationSpecific() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return false; }
+        void doClose() override {}
+
+        CompressedPixelFormat doCompressedPixelFormatForName(Containers::StringView) override {
+            return CompressedPixelFormat::Astc4x4RGBAUnorm;
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.compressedPixelFormatForName("ATC_RGBA");
+    importer.compressedPixelFormatName(CompressedPixelFormat::Astc4x4RGBAUnorm);
+    CORRADE_COMPARE(out.str(),
+        "Trade::AbstractImporter::compressedPixelFormatForName(): implementation-returned CompressedPixelFormat::Astc4x4RGBAUnorm is neither implementation-specific nor invalid\n"
+        "Trade::AbstractImporter::compressedPixelFormatName(): CompressedPixelFormat::Astc4x4RGBAUnorm is not implementation-specific\n");
+}
+
+void AbstractImporterTest::compressedPixelFormatNameCustomDeleter() {
+    #ifdef CORRADE_NO_ASSERT
+    CORRADE_SKIP("CORRADE_NO_ASSERT defined, can't test assertions");
+    #endif
+
+    struct: AbstractImporter {
+        ImporterFeatures doFeatures() const override { return {}; }
+        bool doIsOpened() const override { return true; }
+        void doClose() override {}
+
+        Containers::String doCompressedPixelFormatName(UnsignedInt) override {
+            return Containers::String{"a", 1, [](char*, std::size_t) {}};
+        }
+    } importer;
+
+    std::ostringstream out;
+    Error redirectError{&out};
+    importer.compressedPixelFormatName(compressedPixelFormatWrap(0));
+    CORRADE_COMPARE(out.str(), "Trade::AbstractImporter::compressedPixelFormatName(): implementation is not allowed to use a custom String deleter\n");
 }
 
 void AbstractImporterTest::importerState() {

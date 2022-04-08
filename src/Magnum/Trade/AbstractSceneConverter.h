@@ -1153,6 +1153,81 @@ class MAGNUM_TRADE_EXPORT AbstractSceneConverter: public PluginManager::Abstract
          */
         void setMeshAttributeName(MeshAttribute attribute, Containers::StringView name);
 
+//         /**
+//          * @brief Set name of an implementation-specific mesh primitive
+//          * @m_since_latest
+//          *
+//          * Expects that a conversion is currently in progress, either
+//          * @ref SceneConverterFeature::ConvertMesh /
+//          * @relativeref{SceneConverterFeature,ConvertMeshes},
+//          * @relativeref{SceneConverterFeature,ConvertMeshToData} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToData} or
+//          * @relativeref{SceneConverterFeature,ConvertMeshToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToFile} is
+//          * supported, and that @p primitive is implementation-specific. The
+//          * primitive name may get used only for @ref addMesh() called after
+//          * this function. If the converter doesn't support custom mesh
+//          * primitives or doesn't support naming them, the call is ignored.
+//          * @see @ref isConverting(), @ref features(),
+//          *      @ref isMeshPrimitiveImplementationSpecific(),
+//          *      @ref setSceneFieldName(), @ref setMeshIndexTypeName(),
+//          *      @ref setMeshPrimitiveName(), @ref setVertexFormatName(),
+//          *      @ref setPixelFormatName(), @ref setCompressedPixelFormatName()
+//          */
+//         void setMeshPrimitiveName(MeshPrimitive primitive, Containers::StringView name);
+//             // TODO or a getter? what's the semantic, here it's
+//             // "undertand what's on input" and the getter would be
+//             // "understand what's on output"? same for others, and
+//             // imageconverter
+//
+//         /**
+//          * @brief Set name of an implementation-specific mesh index type
+//          * @m_since_latest
+//          *
+//          * Expects that a conversion is currently in progress, either
+//          * @ref SceneConverterFeature::ConvertMesh /
+//          * @relativeref{SceneConverterFeature,ConvertMeshes},
+//          * @relativeref{SceneConverterFeature,ConvertMeshToData} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToData} or
+//          * @relativeref{SceneConverterFeature,ConvertMeshToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToFile} is
+//          * supported, and that @p type is an implementation-specific index
+//          * type. The index type name may get used only for @ref addMesh()
+//          * called after this function. If the converter doesn't support
+//          * implementation-specific mesh index types or doesn't support naming
+//          * them, the call is ignored.
+//          * @see @ref isConverting(), @ref features(),
+//          *      @ref isMeshIndexTypeImplementationSpecific(),
+//          *      @ref setSceneFieldName(), @ref setMeshAttributeName(),
+//          *      @ref setMeshPrimitiveName(), @ref setVertexFormatName(),
+//          *      @ref setPixelFormatName(), @ref setCompressedPixelFormatName()
+//          */
+//         void setMeshIndexTypeName(MeshIndexType type, Containers::StringView name);
+//
+//         /**
+//          * @brief Set name of an implementation-specific vertex format
+//          * @m_since_latest
+//          *
+//          * Expects that a conversion is currently in progress, either
+//          * @ref SceneConverterFeature::ConvertMesh /
+//          * @relativeref{SceneConverterFeature,ConvertMeshes},
+//          * @relativeref{SceneConverterFeature,ConvertMeshToData} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToData} or
+//          * @relativeref{SceneConverterFeature,ConvertMeshToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertMeshesToFile} is
+//          * supported, and that @p format is an implementation-specific format.
+//          * The format name may get used only for @ref addMesh() called after
+//          * this function. If the converter doesn't support
+//          * implementation-specific vertex formats or doesn't support naming
+//          * them, the call is ignored.
+//          * @see @ref isConverting(), @ref features(),
+//          *      @ref isVertexFormatImplementationSpecific(),
+//          *      @ref setSceneFieldName(), @ref setMeshAttributeName(),
+//          *      @ref setMeshPrimitiveName(), @ref setMeshIndexTypeName(),
+//          *      @ref setPixelFormatName(), @ref setCompressedPixelFormatName()
+//          */
+//         void setVertexFormatName(VertexFormat format, Containers::StringView name);
+
         /**
          * @brief Count of added materials
          * @m_since_latest
@@ -1675,6 +1750,72 @@ class MAGNUM_TRADE_EXPORT AbstractSceneConverter: public PluginManager::Abstract
         Containers::Optional<UnsignedInt> add(Containers::ArrayView<const CompressedImageView3D> imageLevels);
         #endif
 
+// TODO makes passing {ImageData} ambiguous, what to do?!
+//         /**
+//          * @overload
+//          * @m_since_latest
+//          */
+//         #ifdef DOXYGEN_GENERATING_OUTPUT
+//         Containers::Optional<UnsignedInt> add(std::initializer_list<CompressedImageView3D> imageLevels, Containers::StringView name = {});
+//         #else
+//         Containers::Optional<UnsignedInt> add(std::initializer_list<CompressedImageView3D> imageLevels, Containers::StringView name);
+//         Containers::Optional<UnsignedInt> add(std::initializer_list<CompressedImageView3D> imageLevels);
+//         #endif
+
+//         /**
+//          * @brief Set name of an implementation-specific pixel format
+//          * @m_since_latest
+//          *
+//          * Expects that a conversion is currently in progress, either
+//          * @ref SceneConverterFeature::ConvertImages1D /
+//          * @relativeref{SceneConverterFeature,ConvertImages2D} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3D},
+//          * @relativeref{SceneConverterFeature,ConvertImages1DToData} /
+//          * @relativeref{SceneConverterFeature,ConvertImages2DToData} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3DToData} or
+//          * @relativeref{SceneConverterFeature,ConvertImages1DToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertImages2DToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3DToFile} is
+//          * supported, and that @p format is an implementation-specific
+//          * pixel format. The pixel format name may get used only for
+//          * @ref addImage1D() / @ref addImage2D() / @ref addImage3D() called
+//          * after this function. If the converter doesn't support custom pixel
+//          * formats or doesn't support naming them, the call is ignored.
+//          * @see @ref isConverting(), @ref features(),
+//          *      @ref isPixelFormatImplementationSpecific(),
+//          *      @ref setSceneFieldName(), @ref setMeshPrimitiveName(),
+//          *      @ref setMeshIndexTypeName(), @ref setMeshAttributeName(),
+//          *      @ref setVertexFormatName(), @ref setCompressedPixelFormatName()
+//          */
+//         void setPixelFormatName(PixelFormat format, Containers::StringView name);
+//
+//         /**
+//          * @brief Set name of an implementation-specific compressed pixel format
+//          * @m_since_latest
+//          *
+//          * Expects that a conversion is currently in progress, either
+//          * @ref SceneConverterFeature::ConvertImages1D /
+//          * @relativeref{SceneConverterFeature,ConvertImages2D} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3D},
+//          * @relativeref{SceneConverterFeature,ConvertImages1DToData} /
+//          * @relativeref{SceneConverterFeature,ConvertImages2DToData} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3DToData} or
+//          * @relativeref{SceneConverterFeature,ConvertImages1DToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertImages2DToFile} /
+//          * @relativeref{SceneConverterFeature,ConvertImages3DToFile} is
+//          * supported, and that @p format is an implementation-specific
+//          * pixel format. The pixel format name may get used only for
+//          * @ref addImage1D() / @ref addImage2D() / @ref addImage3D() called
+//          * after this function. If the converter doesn't support custom pixel
+//          * formats or doesn't support naming them, the call is ignored.
+//          * @see @ref isConverting(), @ref features(),
+//          *      @ref isPixelFormatImplementationSpecific(),
+//          *      @ref setSceneFieldName(), @ref setMeshPrimitiveName(),
+//          *      @ref setMeshIndexTypeName(), @ref setMeshAttributeName(),
+//          *      @ref setVertexFormatName(), @ref setPixelFormatName()
+//          */
+//         void setCompressedPixelFormatName(CompressedPixelFormat format, Containers::StringView name);
+
     protected:
         /**
          * @brief Implementation for @ref convertToFile(const MeshData&, Containers::StringView)
@@ -1979,6 +2120,34 @@ class MAGNUM_TRADE_EXPORT AbstractSceneConverter: public PluginManager::Abstract
          */
         virtual void doSetMeshAttributeName(UnsignedShort attribute, Containers::StringView name);
 
+//         /**
+//          * @brief Implementation for @ref setMeshPrimitiveName()
+//          * @m_since_latest
+//          *
+//          * Receives the implementation-specific identifier extracted via
+//          * @ref meshPrimitiveUnwrap(). Default implementation does nothing.
+//          */
+//         virtual void doSetMeshPrimitiveName(UnsignedInt primitive, Containers::StringView name);
+//
+//         /**
+//          * @brief Implementation for @ref setMeshIndexTypeName()
+//          * @m_since_latest
+//          *
+//          * Receives the implementation-specific identifier extracted via
+//          * @ref meshIndexTypeUnwrap(). Default implementation does nothing.
+//          */
+//         virtual void doSetMeshIndexTypeName(UnsignedInt type, Containers::StringView name);
+//
+//         /**
+//          * @brief Implementation for @ref setVertexFormatName()
+//          * @m_since_latest
+//          *
+//          * Receives the implementation-specific identifier extracted via
+//          * @ref vertexFormatUnwrap(). Default implementation does
+//          * nothing.
+//          */
+//         virtual void doSetVertexFormatName(UnsignedInt type, Containers::StringView name);
+
         /**
          * @brief Implementation for @ref add(const MaterialData&, Containers::StringView)
          * @m_since_latest
@@ -2080,6 +2249,25 @@ class MAGNUM_TRADE_EXPORT AbstractSceneConverter: public PluginManager::Abstract
          * @ref ImageData3D instances.
          */
         virtual bool doAdd(UnsignedInt id, Containers::ArrayView<const Containers::AnyReference<const ImageData3D>> imageLevels, Containers::StringView name);
+
+//         /**
+//          * @brief Implementation for @ref setPixelFormatName()
+//          * @m_since_latest
+//          *
+//          * Receives the implementation-specific identifier extracted via
+//          * @ref pixelFormatUnwrap(). Default implementation does nothing.
+//          */
+//         virtual void doSetPixelFormatName(UnsignedInt type, Containers::StringView name);
+//
+//         /**
+//          * @brief Implementation for @ref setCompressedPixelFormatName()
+//          * @m_since_latest
+//          *
+//          * Receives the implementation-specific identifier extracted via
+//          * @ref compressedPixelFormatUnwrap(). Default implementation does
+//          * nothing.
+//          */
+//         virtual void doSetCompressedPixelFormatName(UnsignedInt type, Containers::StringView name);
 
         SceneConverterFlags _flags;
         Containers::Pointer<State> _state;

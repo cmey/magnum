@@ -36,6 +36,7 @@
 #include <Corrade/Utility/Path.h>
 
 #include "Magnum/FileCallback.h"
+#include "Magnum/PixelFormat.h"
 #include "Magnum/Trade/AnimationData.h"
 #include "Magnum/Trade/ArrayAllocator.h"
 #include "Magnum/Trade/CameraData.h"
@@ -91,7 +92,7 @@ using namespace Containers::Literals;
 Containers::StringView AbstractImporter::pluginInterface() {
     return
 /* [interface] */
-"cz.mosra.magnum.Trade.AbstractImporter/0.5"_s
+"cz.mosra.magnum.Trade.AbstractImporter/0.5.1"_s
 /* [interface] */
     ;
 }
@@ -1171,6 +1172,72 @@ Containers::String AbstractImporter::meshAttributeName(const MeshAttribute name)
 
 Containers::String AbstractImporter::doMeshAttributeName(UnsignedShort) { return {}; }
 
+MeshPrimitive AbstractImporter::meshPrimitiveForName(const Containers::StringView name) {
+    const MeshPrimitive out = doMeshPrimitiveForName(name);
+    CORRADE_ASSERT(out == MeshPrimitive{} || isMeshPrimitiveImplementationSpecific(out),
+        "Trade::AbstractImporter::meshPrimitiveForName(): implementation-returned" << out << "is neither implementation-specific nor invalid", {});
+    return out;
+}
+
+MeshPrimitive AbstractImporter::doMeshPrimitiveForName(Containers::StringView) {
+    return {};
+}
+
+Containers::String AbstractImporter::meshPrimitiveName(const MeshPrimitive primitive) {
+    CORRADE_ASSERT(isMeshPrimitiveImplementationSpecific(primitive),
+        "Trade::AbstractImporter::meshPrimitiveName():" << primitive << "is not implementation-specific", {});
+    Containers::String out = doMeshPrimitiveName(meshPrimitiveUnwrap(primitive));
+    CORRADE_ASSERT(out.isSmall() || !out.deleter(),
+        "Trade::AbstractImporter::meshPrimitiveName(): implementation is not allowed to use a custom String deleter", {});
+    return out;
+}
+
+Containers::String AbstractImporter::doMeshPrimitiveName(UnsignedInt) { return {}; }
+
+MeshIndexType AbstractImporter::meshIndexTypeForName(const Containers::StringView name) {
+    const MeshIndexType out = doMeshIndexTypeForName(name);
+    CORRADE_ASSERT(out == MeshIndexType{} || isMeshIndexTypeImplementationSpecific(out),
+        "Trade::AbstractImporter::meshIndexTypeForName(): implementation-returned" << out << "is neither implementation-specific nor invalid", {});
+    return out;
+}
+
+MeshIndexType AbstractImporter::doMeshIndexTypeForName(Containers::StringView) {
+    return {};
+}
+
+Containers::String AbstractImporter::meshIndexTypeName(const MeshIndexType type) {
+    CORRADE_ASSERT(isMeshIndexTypeImplementationSpecific(type),
+        "Trade::AbstractImporter::meshIndexTypeName():" << type << "is not implementation-specific", {});
+    Containers::String out = doMeshIndexTypeName(meshIndexTypeUnwrap(type));
+    CORRADE_ASSERT(out.isSmall() || !out.deleter(),
+        "Trade::AbstractImporter::meshIndexTypeName(): implementation is not allowed to use a custom String deleter", {});
+    return out;
+}
+
+Containers::String AbstractImporter::doMeshIndexTypeName(UnsignedInt) { return {}; }
+
+VertexFormat AbstractImporter::vertexFormatForName(const Containers::StringView name) {
+    const VertexFormat out = doVertexFormatForName(name);
+    CORRADE_ASSERT(out == VertexFormat{} || isVertexFormatImplementationSpecific(out),
+        "Trade::AbstractImporter::vertexFormatForName(): implementation-returned" << out << "is neither implementation-specific nor invalid", {});
+    return out;
+}
+
+VertexFormat AbstractImporter::doVertexFormatForName(Containers::StringView) {
+    return {};
+}
+
+Containers::String AbstractImporter::vertexFormatName(const VertexFormat format) {
+    CORRADE_ASSERT(isVertexFormatImplementationSpecific(format),
+        "Trade::AbstractImporter::vertexFormatName():" << format << "is not implementation-specific", {});
+    Containers::String out = doVertexFormatName(vertexFormatUnwrap(format));
+    CORRADE_ASSERT(out.isSmall() || !out.deleter(),
+        "Trade::AbstractImporter::vertexFormatName(): implementation is not allowed to use a custom String deleter", {});
+    return out;
+}
+
+Containers::String AbstractImporter::doVertexFormatName(UnsignedInt) { return {}; }
+
 #ifdef MAGNUM_BUILD_DEPRECATED
 UnsignedInt AbstractImporter::mesh2DCount() const {
     CORRADE_ASSERT(isOpened(), "Trade::AbstractImporter::mesh2DCount(): no file opened", {});
@@ -1597,6 +1664,50 @@ Containers::Optional<ImageData3D> AbstractImporter::image3D(const Containers::St
     /* not doImage3D(), so we get the range checks also */
     return image3D(id, level);
 }
+
+PixelFormat AbstractImporter::pixelFormatForName(const Containers::StringView name) {
+    const PixelFormat out = doPixelFormatForName(name);
+    CORRADE_ASSERT(out == PixelFormat{} || isPixelFormatImplementationSpecific(out),
+        "Trade::AbstractImporter::pixelFormatForName(): implementation-returned" << out << "is neither implementation-specific nor invalid", {});
+    return out;
+}
+
+PixelFormat AbstractImporter::doPixelFormatForName(Containers::StringView) {
+    return {};
+}
+
+Containers::String AbstractImporter::pixelFormatName(const PixelFormat format) {
+    CORRADE_ASSERT(isPixelFormatImplementationSpecific(format),
+        "Trade::AbstractImporter::pixelFormatName():" << format << "is not implementation-specific", {});
+    Containers::String out = doPixelFormatName(pixelFormatUnwrap(format));
+    CORRADE_ASSERT(out.isSmall() || !out.deleter(),
+        "Trade::AbstractImporter::pixelFormatName(): implementation is not allowed to use a custom String deleter", {});
+    return out;
+}
+
+Containers::String AbstractImporter::doPixelFormatName(UnsignedInt) { return {}; }
+
+CompressedPixelFormat AbstractImporter::compressedPixelFormatForName(const Containers::StringView name) {
+    const CompressedPixelFormat out = doCompressedPixelFormatForName(name);
+    CORRADE_ASSERT(out == CompressedPixelFormat{} || isCompressedPixelFormatImplementationSpecific(out),
+        "Trade::AbstractImporter::compressedPixelFormatForName(): implementation-returned" << out << "is neither implementation-specific nor invalid", {});
+    return out;
+}
+
+CompressedPixelFormat AbstractImporter::doCompressedPixelFormatForName(Containers::StringView) {
+    return {};
+}
+
+Containers::String AbstractImporter::compressedPixelFormatName(const CompressedPixelFormat format) {
+    CORRADE_ASSERT(isCompressedPixelFormatImplementationSpecific(format),
+        "Trade::AbstractImporter::compressedPixelFormatName():" << format << "is not implementation-specific", {});
+    Containers::String out = doCompressedPixelFormatName(compressedPixelFormatUnwrap(format));
+    CORRADE_ASSERT(out.isSmall() || !out.deleter(),
+        "Trade::AbstractImporter::compressedPixelFormatName(): implementation is not allowed to use a custom String deleter", {});
+    return out;
+}
+
+Containers::String AbstractImporter::doCompressedPixelFormatName(UnsignedInt) { return {}; }
 
 const void* AbstractImporter::importerState() const {
     CORRADE_ASSERT(isOpened(), "Trade::AbstractImporter::importerState(): no file opened", {});
