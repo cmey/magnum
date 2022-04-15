@@ -1224,6 +1224,69 @@ Containers::Optional<UnsignedInt> AbstractSceneConverter::add(const Containers::
 //     return add(Containers::arrayView(imageLevels), {});
 // }
 
+bool AbstractSceneConverter::addImporterContents(AbstractImporter& importer, const SceneConverterContents contents) {
+    // TODO assert if begin called
+    // TODO assert if importer opened
+    // TODO assert about features? or leave that on the called funs
+
+    if(contents & SceneConverterContent::Scenes) {
+        const UnsignedInt sceneCount = importer.sceneCount();
+        for(UnsignedInt i = 0; i != sceneCount; ++i) {
+            // TODO field names, how to filter them to not call the name again
+            //  and again?!
+            Containers::Optional<Trade::SceneData> scene = importer.scene(i);
+            if(!scene || !add(*scene, importer.sceneName(i)))
+                return false;
+        }
+    }
+
+    if(contents & SceneConverterContent::Meshes) {
+        const UnsignedInt meshCount = importer.meshCount();
+        for(UnsignedInt i = 0; i != meshCount; ++i) {
+            // TODO attribute names, how to filter them to not call the name again
+            //  and again?!
+            Containers::Optional<Trade::MeshData> mesh = importer.mesh(i);
+            if(!mesh || !add(*mesh, importer.meshName(i)))
+                return false;
+        }
+    }
+
+    // TODO rest
+
+    return true;
+}
+
+bool AbstractSceneConverter::addSupportedImporterContents(AbstractImporter& importer, const SceneConverterContents contents) {
+    SceneConverterContents filteredContents;
+    const SceneConverterFeatures features = this->features();
+    #define _c(name)                                                        \
+        if(features & SceneConverterFeature::Add ## name)                   \
+            filteredContents |= SceneConverterContent::name;
+    _c(Scenes)
+    _c(Animations)
+    _c(Lights)
+    _c(Cameras)
+    _c(Skins2D)
+    _c(Skins3D)
+    _c(Meshes)
+    _c(Materials)
+    _c(Textures)
+    _c(Images1D)
+    _c(Images2D)
+    _c(Images3D)
+    _c(CompressedImages1D)
+    _c(CompressedImages2D)
+    _c(CompressedImages2D)
+    #undef _c
+    if(features & SceneConverterFeature::MeshLevels)
+        filteredContents |= SceneConverterContent::ExtraMeshLevels;
+    if(features & SceneConverterFeature::ImageLevels)
+        filteredContents |= SceneConverterContent::ExtraImageLevels;
+
+    // TODO be sure to test this
+    return addImporterContents(importer, filteredContents & contents);
+}
+
 Debug& operator<<(Debug& debug, const SceneConverterFeature value) {
     debug << "Trade::SceneConverterFeature" << Debug::nospace;
 
